@@ -136,18 +136,16 @@ extension HTTPDataRequest: URLSessionDataDelegate {
     }
     
     private func dispathResult(forResponse response: DataResponse) {
-        DispatchQueue.main.async {[weak self] in
-            if self?._dataCompletionHandler != nil {
-                self?._dataCompletionHandler?(response)
+            if self._dataCompletionHandler != nil {
+                self._dataCompletionHandler?(response)
             }
             
-            if self?._stringCompletionHandler != nil {
-                self?._stringCompletionHandler?(response.stringSerialiser())
+            if self._stringCompletionHandler != nil {
+                self._stringCompletionHandler?(response.stringSerialiser())
             }
             
-            if self?._jsonCompletionHandler != nil {
-                self?._jsonCompletionHandler?(response.jsonSerialiser())
+            if self._jsonCompletionHandler != nil {
+                self._jsonCompletionHandler?(response.jsonSerialiser())
             }
-        }
     }
 }

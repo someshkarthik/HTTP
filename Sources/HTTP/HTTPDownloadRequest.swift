@@ -149,29 +149,21 @@ extension HTTPDownloadRequest: URLSessionDownloadDelegate {
         
         let result: DownloadResult = .success(finalDestinationURL)
         let httpResponse = DownloadResponse(data: nil, response: downloadTask.response, result: result)
-        DispatchQueue.main.async {[weak self] in
-            self?._downloadCompletionHandler?(httpResponse)
-        }
-        
+        self._downloadCompletionHandler?(httpResponse)
     }
     
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
         let progress = downloadTask.progress
         progress.completedUnitCount = fileOffset
         progress.totalUnitCount = expectedTotalBytes
-        DispatchQueue.main.async { [weak self] in
-            self?._progressHandler?(progress)
-        }
+        self._progressHandler?(progress)
     }
     
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
         let progress = downloadTask.progress
         progress.completedUnitCount = totalBytesWritten
         progress.totalUnitCount = totalBytesExpectedToWrite
-        
-        DispatchQueue.main.async {[weak self] in
-            self?._progressHandler?(progress)
-        }
+        self._progressHandler?(progress)
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -185,10 +177,7 @@ extension HTTPDownloadRequest: URLSessionDownloadDelegate {
     private func encodeToErrorResponse(_ error: Error,from response: URLResponse?) {
         let result: DownloadResult = .failure(error.httpError)
         let httpResponse: DownloadResponse = .init(data: nil, response: response, result: result)
-        DispatchQueue.main.async {[weak self] in
-            self?._downloadCompletionHandler?(httpResponse)
-        }
-        
+        self._downloadCompletionHandler?(httpResponse)
     }
 }
 
