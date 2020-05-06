@@ -72,15 +72,35 @@ open class HTTPDataRequest: HTTPRequest, TaskBuilder {
     
     @discardableResult
     public func build() -> RequestBuilder {
+        var urlRequest: URLRequest
+        
         if let urlRequestConvertible = _url as? URLRequestConvertible {
-            let urlRequest = urlRequestConvertible.asURLRequest()
+            urlRequest = urlRequestConvertible.asURLRequest()
             task = session?.dataTask(with: urlRequest)
         } else {
             do {
                 let url = try _url.asURl()
-                task = session?.dataTask(with: url)
+                urlRequest = URLRequest(url: url)
             } catch { encodeResponse(for: error, response: nil); return self}
         }
+        
+        urlRequest.timeoutInterval = sessionConfiguration.timeoutIntervalForRequest
+        urlRequest.allowsCellularAccess = sessionConfiguration.allowsCellularAccess
+        
+        if let method = _method?.rawValue {
+            urlRequest.httpMethod = method
+        }
+        
+        if !_parameters.isEmpty {
+            do { try urlRequest.url?.encode(withParameters: self._parameters) }
+            catch { encodeResponse(for: error, response: nil); return self }
+        }
+        
+        for (key,value) in _header {
+            urlRequest.setValue(value, forHTTPHeaderField: key)
+        }
+        
+        task = session?.dataTask(with: urlRequest)
         task?.resume()
         return self
     }

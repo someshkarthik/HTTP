@@ -72,14 +72,23 @@ open class HTTPDownloadRequest: HTTPRequest, TaskBuilder {
             do {
                 let url = try _url.asURl()
                 urlRequest = URLRequest(url: url)
-                urlRequest.timeoutInterval = sessionConfiguration.timeoutIntervalForRequest
-                urlRequest.allowsCellularAccess = sessionConfiguration.allowsCellularAccess
-                urlRequest.httpMethod = _method?.rawValue
-                
-                for (key,value) in _header {
-                    urlRequest.setValue(value, forHTTPHeaderField: key)
-                }
             } catch { encodeToErrorResponse(error, from: nil); return self}
+        }
+        
+        urlRequest.timeoutInterval = sessionConfiguration.timeoutIntervalForRequest
+        urlRequest.allowsCellularAccess = sessionConfiguration.allowsCellularAccess
+        
+        if let method = _method?.rawValue {
+            urlRequest.httpMethod = method
+        }
+        
+        if !_parameters.isEmpty {
+            do { try urlRequest.url?.encode(withParameters: self._parameters) }
+            catch {encodeToErrorResponse(error, from: nil); return self}
+        }
+        
+        for (key,value) in _header {
+            urlRequest.setValue(value, forHTTPHeaderField: key)
         }
         
         task = session?.downloadTask(with: urlRequest)
