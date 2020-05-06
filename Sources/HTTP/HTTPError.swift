@@ -8,8 +8,6 @@
 
 import Foundation
 
-
-
 open class HTTPError: Error {
     public private(set) var localizedDescription: String
     public private(set) var type: Type
