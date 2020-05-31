@@ -1,6 +1,6 @@
 //
 //  HTTPUploadRequest.swift
-//  InstaSaver
+//  HTTP
 //
 //  Created by somesh-8758 on 21/03/20.
 //  Copyright © 2020 somesh-8758. All rights reserved.
@@ -13,26 +13,26 @@ public enum HTTPFileUploader {
     case url(URL)
 }
 
-open class HTTPUploadRequest: HTTPRequest, TaskBuilder {
+final public class HTTPUploadRequest: HTTPRequest, Builder {
     
     public typealias CompletionHandler = HTTPDataResponseHandler
-    public typealias RequestBuilder = HTTPUploadRequest
+    public typealias Buildable = HTTPUploadRequest
     
     private var _fileUploader: HTTPFileUploader?
     private var _mutltiPartDataHandler: HTTPMultiPartDataHandler?
     private var _dataCompletionHandler: HTTPDataResponseHandler?
-
+    
     public static func builder() -> HTTPUploadRequest {
-        let request = RequestBuilder()
+        let request = Buildable()
         return request
     }
     
-    public func url(_ url: URLConvertible) -> HTTPUploadRequest {
+    public func url(_ url: URLRepresentable) -> HTTPUploadRequest {
         self._url = url
         return self
     }
     
-    public func urlRequest(_ url: URLRequestConvertible) -> HTTPUploadRequest {
+    public func urlRequest(_ url: URLRequestRepresentable) -> HTTPUploadRequest {
         self._url = url
         return self
     }
@@ -72,7 +72,13 @@ open class HTTPUploadRequest: HTTPRequest, TaskBuilder {
         return self
     }
     
-    public func build() -> RequestBuilder {
+    public func `catch`(_ errorHandler: @escaping HTTPErrorHandler) -> HTTPUploadRequest {
+        self._errorHandler = errorHandler
+        return self
+    }
+    
+    
+    public func build() -> Buildable {
         var multiPartData = _mutltiPartDataHandler?()
         var dataToUpload: Data
         switch _fileUploader {
@@ -86,7 +92,7 @@ open class HTTPUploadRequest: HTTPRequest, TaskBuilder {
         }
         do {
             var urlRequest = URLRequest(url: try _url.asURl())
-            urlRequest.httpMethod = _method!.rawValue
+            urlRequest.httpMethod = _method.rawValue
             urlRequest.httpBody = try multiPartData?.encode()
             _header["Connection"] = "Keep-Alive"
             _header["Content-Type"] = "multipart/form-data"
@@ -99,7 +105,7 @@ open class HTTPUploadRequest: HTTPRequest, TaskBuilder {
         
         return self
     }
-
+    
 }
 
 
@@ -114,7 +120,7 @@ extension HTTPUploadRequest: URLSessionDataDelegate {
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didSendBodyData bytesSent: Int64, totalBytesSent: Int64, totalBytesExpectedToSend: Int64) {
-       // progressHandler?(Float(totalBytesSent)/Float(totalBytesExpectedToSend))
+        // progressHandler?(Float(totalBytesSent)/Float(totalBytesExpectedToSend))
     }
     
     public func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {

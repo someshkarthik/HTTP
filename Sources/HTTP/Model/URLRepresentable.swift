@@ -1,6 +1,6 @@
 //
-//  URLConvertible.swift
-//  InstaSaver
+//  URLRepresentable.swift
+//  HTTP
 //
 //  Created by somesh-8758 on 23/03/20.
 //  Copyright © 2020 somesh-8758. All rights reserved.
@@ -8,13 +8,22 @@
 
 import Foundation
 
-public protocol URLConvertible {
+public protocol URLRepresentable {
     func asURl() throws -> URL
 }
 
-extension URL: URLConvertible {
+extension URL: URLRepresentable {
     public func asURl() throws -> URL {
         return self
+    }
+}
+
+extension Optional: URLRepresentable where Wrapped == URL {
+    public func asURl() throws -> URL {
+        if let url = self {
+            return url
+        }
+        throw HTTPError.invalidURl()
     }
 }
 
@@ -28,7 +37,7 @@ public extension URL {
     }
 }
 
-extension URLComponents: URLConvertible {
+extension URLComponents: URLRepresentable {
     public func asURl() throws -> URL {
         if let url = url {
             return url
@@ -37,17 +46,26 @@ extension URLComponents: URLConvertible {
     }
 }
 
-public protocol URLRequestConvertible: URLConvertible {
+public protocol URLRequestRepresentable: URLRepresentable {
     func asURLRequest() -> URLRequest
 }
 
-extension URLRequest: URLRequestConvertible {
+extension URLRequest: URLRequestRepresentable {
     public func asURLRequest() -> URLRequest {
         return self
     }
     
     public func asURl() throws -> URL {
         if let url = url {
+            return url
+        }
+        throw HTTPError.invalidURl()
+    }
+}
+
+extension String: URLRepresentable {
+    public func asURl() throws -> URL {
+        if let url = URL(string: self) {
             return url
         }
         throw HTTPError.invalidURl()

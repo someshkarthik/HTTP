@@ -1,6 +1,6 @@
 //
 //  MultiPartData.swift
-//  InstaSaver
+//  HTTP
 //
 //  Created by somesh-8758 on 22/03/20.
 //  Copyright © 2020 somesh-8758. All rights reserved.
@@ -56,12 +56,12 @@ struct Boundary {
     }
 }
 
-public class BodyPart {
+final public class BodyPart {
     let contentHeader: HTTPHeader
     let inputBufferStream: InputStream
     let contentLength: UInt64
     var type: Boundary.`Type` = .none
-
+    
     init(headers: HTTPHeader, inputBufferStream: InputStream, contentLength: UInt64) {
         self.contentHeader = headers
         self.inputBufferStream = inputBufferStream
@@ -149,7 +149,7 @@ public struct MultiPartData {
         
         let initialData = bodyPath.type.hasInitial ? initialBoundaryData() : middleBoundaryData()
         newData.append(initialData)
-
+        
         let contentHeaderData = encodeContentHeader(bodyPath.contentHeader)
         newData.append(contentHeaderData)
         
@@ -203,28 +203,28 @@ public struct MultiPartData {
         {
             return contentType as String
         }
-
+        
         return "application/octet-stream"
     }
     
     private func initialBoundaryData() -> Data {
         return Boundary.boundaryData(for: .initial, boundary: boundary)
     }
-
+    
     private func middleBoundaryData() -> Data {
         return Boundary.boundaryData(for: .middle, boundary: boundary)
     }
-
+    
     private func finalBoundaryData() -> Data {
         return Boundary.boundaryData(for: .final, boundary: boundary)
     }
 }
 
 extension Data {
-  mutating func appendString(_ string: String) {
-    let data = string.data(using: .utf8, allowLossyConversion: true)
-    self.append(data!)
-  }
+    mutating func appendString(_ string: String) {
+        let data = string.data(using: .utf8, allowLossyConversion: true)
+        self.append(data!)
+    }
 }
 
 extension String {
