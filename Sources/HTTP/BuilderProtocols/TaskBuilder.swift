@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol TaskBuilder: Builder {
+internal protocol TaskBuilder: Builder {
     associatedtype ResponseType
     typealias CompletionHandler = (ResponseType)->Void
     

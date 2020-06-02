@@ -15,7 +15,7 @@ protocol DownloadRequestDelegate: class {
 
 final class HTTPDownloadRequestDelegate: NSObject, URLSessionDownloadDelegate {
     
-    var fileDestination: HTTPDownloadRequest.HTTPDownloadFileDestination?
+    var fileDestination: HTTPDownloadRequestBuilder.HTTPDownloadFileDestination?
     var delegate: DownloadRequestDelegate?
     
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {

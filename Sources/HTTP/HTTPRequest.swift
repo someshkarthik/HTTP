@@ -24,12 +24,7 @@ public class HTTPRequest: NSObject {
     var task: URLSessionTask?
     var _progressHandler: HTTPProgressHandler?
     var _errorHandler: HTTPErrorHandler?
-    
-    func setSession(_ session: URLSession) -> Self {
-        self.session = session
-        return self
-    }
-    
+
     func resume() {
         task?.resume()
     }

@@ -100,7 +100,7 @@ public extension HTTPError {
 
 internal extension Error {
     var httpError: HTTPError {
-        return HTTPError(error: self)
+        HTTPError(error: self)
     }
 }
 

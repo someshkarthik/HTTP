@@ -8,7 +8,7 @@
 
 import Foundation
 
-final public class HTTPDataRequest: HTTPRequest,Builder {
+final internal class HTTPDataRequest: HTTPRequest,Builder {
     var dataRequestDelegate: HTTPDataRequestDelegate = .init()
     
     var decodable: HTTPDecodable.Type?
@@ -68,7 +68,7 @@ final public class HTTPDataRequest: HTTPRequest,Builder {
 
 extension HTTPDataRequest: DataRequestDelegate {
     func httpDataRequestDelegate(_ progress: Progress) {
-        _progressHandler?(progress)
+        _progressHandler?(progress.httpProgress)
     }
     
     func httpDataRequestDelegate(finishedWithError error: ErrorResponse) {

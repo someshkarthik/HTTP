@@ -8,9 +8,7 @@
 
 import Foundation
 
-final public class HTTPDownloadRequest: HTTPRequest, Builder {
-    public typealias HTTPDownloadFileDestination = (_ defaultDestinationURL: URL,_ response: HTTPURLResponse?) -> (targetURL: URL,options: DestinationFileOptions)
-    
+final internal class HTTPDownloadRequest: HTTPRequest, Builder {
     private var resumableData: Data?
     
     var _downloadCompletionHandler: HTTPDownloadResponseHandler?
@@ -50,7 +48,8 @@ final public class HTTPDownloadRequest: HTTPRequest, Builder {
                     finishedWithError: .init(data: nil, response: nil, result: error.httpError),
                     resumableData: nil
                 )
-                return self}
+                return self
+            }
         }
         
         for (key,value) in _header {
@@ -94,20 +93,6 @@ extension HTTPDownloadRequest: DownloadRequestDelegate {
     }
     
     func httpDownloadRequestDelegate(_ progress: Progress) {
-        _progressHandler?(progress)
-    }
-}
-
-public extension HTTPDownloadRequest {
-    struct DestinationFileOptions: OptionSet {
-        public typealias RawValue = Int
-        public var rawValue: HTTPDownloadRequest.DestinationFileOptions.RawValue
-        
-        public init(rawValue: Self.RawValue) {
-            self.rawValue = rawValue
-        }
-        
-        public static var removeDuplicate = DestinationFileOptions(rawValue: 1<<0)
-        public static var createIntermediateDirectories = DestinationFileOptions(rawValue: 1<<1)
+        _progressHandler?(progress.httpProgress)
     }
 }

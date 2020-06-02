@@ -9,6 +9,7 @@ import Foundation
 
 public struct HTTPDownloadRequestBuilder: RequestBuilder {
     typealias CompletionHandler = HTTPDownloadResponseHandler
+    public typealias HTTPDownloadFileDestination = (_ defaultDestinationURL: URL,_ response: HTTPURLResponse?) -> (targetURL: URL,options: HTTPDownloadRequestBuilder.DestinationFileOptions)
     
     
     internal var _url: URLRepresentable = URL(string: "com.nosuchurl.com")!
@@ -17,7 +18,7 @@ public struct HTTPDownloadRequestBuilder: RequestBuilder {
     internal var _requestMethod: HTTPMethod = .get
     internal var _progressHandler: HTTPProgressHandler?
     internal var _completionHandler: HTTPDownloadResponseHandler?
-    private var _fileDestination: HTTPDownloadRequest.HTTPDownloadFileDestination?
+    private var _fileDestination: Self.HTTPDownloadFileDestination?
     internal var _errorHandler: HTTPErrorHandler?
     internal var _sessionConfiguration: URLSessionConfiguration = {
         let defaultConfiguration = URLSessionConfiguration.default
@@ -67,7 +68,7 @@ public struct HTTPDownloadRequestBuilder: RequestBuilder {
         return mutable
     }
     
-    public func fileDestination(_ fileDestination: @escaping HTTPDownloadRequest.HTTPDownloadFileDestination) -> HTTPDownloadRequestBuilder {
+    public func fileDestination(_ fileDestination: @escaping Self.HTTPDownloadFileDestination) -> HTTPDownloadRequestBuilder {
         var mutable = self
         mutable._fileDestination = fileDestination
         return mutable
@@ -92,7 +93,7 @@ public struct HTTPDownloadRequestBuilder: RequestBuilder {
     }
     
     @discardableResult
-    public func build() -> HTTPDownloadRequest {
+    public func build() -> HTTPRequest {
         let request = HTTPDownloadRequest.builder()
         
         request.session = URLSession(configuration: _sessionConfiguration, delegate: request.downloadRequestDelegate, delegateQueue: nil)
@@ -108,5 +109,20 @@ public struct HTTPDownloadRequestBuilder: RequestBuilder {
         request.downloadRequestDelegate.fileDestination = _fileDestination
         
         return request.build()
+    }
+}
+
+
+public extension HTTPDownloadRequestBuilder {
+    struct DestinationFileOptions: OptionSet {
+        public typealias RawValue = Int
+        public var rawValue: HTTPDownloadRequestBuilder.DestinationFileOptions.RawValue
+        
+        public init(rawValue: Self.RawValue) {
+            self.rawValue = rawValue
+        }
+        
+        public static var removeDuplicate = DestinationFileOptions(rawValue: 1<<0)
+        public static var createIntermediateDirectories = DestinationFileOptions(rawValue: 1<<1)
     }
 }

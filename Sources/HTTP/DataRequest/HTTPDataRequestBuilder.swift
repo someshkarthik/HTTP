@@ -119,7 +119,7 @@ public struct HTTPDataRequestBuilder: RequestBuilder, TaskBuilder {
     }
     
     @discardableResult
-    public func build() -> HTTPDataRequest {
+    public func build() -> HTTPRequest {
         let request = HTTPDataRequest()
         request.session = URLSession(configuration: _sessionConfiguration, delegate: request.dataRequestDelegate, delegateQueue: nil)
         

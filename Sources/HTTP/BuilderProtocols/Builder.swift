@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol Builder {
+internal protocol Builder {
     associatedtype Buildable
     associatedtype Request
     static func builder() -> Buildable
