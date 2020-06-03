@@ -9,10 +9,10 @@
 import Foundation
 
 public class HTTPRequest: NSObject {
-    var _url: URLRepresentable = URL(string: "com.nosuchurl.com")!
-    var _method: HTTPMethod = .get
-    var _header: HTTPHeader = [:]
-    var _parameters: HTTPParameters = [:]
+    var url: URLRepresentable = URL(string: "com.nosuchurl.com")!
+    var method: HTTPMethod = .get
+    var header: HTTPHeader = [:]
+    var parameters: HTTPParameters = [:]
     var sessionConfiguration: URLSessionConfiguration = {
         let defaultConfiguration = URLSessionConfiguration.default
         defaultConfiguration.timeoutIntervalForRequest = 30
@@ -22,8 +22,8 @@ public class HTTPRequest: NSObject {
     
     var session: URLSession?
     var task: URLSessionTask?
-    var _progressHandler: HTTPProgressHandler?
-    var _errorHandler: HTTPErrorHandler?
+    var progressHandler: HTTPProgressHandler?
+    var errorHandler: HTTPErrorHandler?
 
     func resume() {
         task?.resume()

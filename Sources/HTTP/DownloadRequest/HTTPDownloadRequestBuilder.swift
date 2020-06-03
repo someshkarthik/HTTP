@@ -8,7 +8,6 @@
 import Foundation
 
 public struct HTTPDownloadRequestBuilder: RequestBuilder {
-    typealias CompletionHandler = HTTPDownloadResponseHandler
     public typealias HTTPDownloadFileDestination = (_ defaultDestinationURL: URL,_ response: HTTPURLResponse?) -> (targetURL: URL,options: HTTPDownloadRequestBuilder.DestinationFileOptions)
     
     
@@ -32,51 +31,9 @@ public struct HTTPDownloadRequestBuilder: RequestBuilder {
         return .init()
     }
     
-    public func url(_ url: URLRepresentable) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._url = url
-        return mutable
-    }
-    
-    public func urlRequest(_ url: URLRequestRepresentable) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._url = url
-        return mutable
-    }
-    
-    public func header(_ header: HTTPHeader) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._header = header
-        return mutable
-    }
-    
-    public func requestMethod(_ requestMethod: HTTPMethod) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._requestMethod = requestMethod
-        return mutable
-    }
-    
-    public func queryParameters(_ parameters: HTTPParameters) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._parameters = parameters
-        return mutable
-    }
-    
-    public func sessionConfiguration(_ sessionConfiguration: URLSessionConfiguration) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._sessionConfiguration = sessionConfiguration
-        return mutable
-    }
-    
     public func fileDestination(_ fileDestination: @escaping Self.HTTPDownloadFileDestination) -> HTTPDownloadRequestBuilder {
         var mutable = self
         mutable._fileDestination = fileDestination
-        return mutable
-    }
-    
-    public func progressHandler(_ progressHandler: @escaping HTTPProgressHandler) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._progressHandler = progressHandler
         return mutable
     }
     
@@ -86,25 +43,19 @@ public struct HTTPDownloadRequestBuilder: RequestBuilder {
         return mutable
     }
     
-    public func `catch`(_ errorHandler: @escaping HTTPErrorHandler) -> HTTPDownloadRequestBuilder {
-        var mutable = self
-        mutable._errorHandler = errorHandler
-        return mutable
-    }
-    
     @discardableResult
     public func build() -> HTTPRequest {
         let request = HTTPDownloadRequest.builder()
         
         request.session = URLSession(configuration: _sessionConfiguration, delegate: request.downloadRequestDelegate, delegateQueue: nil)
         
-        request._url = _url
-        request._header = _header
-        request._errorHandler = _errorHandler
-        request._progressHandler = _progressHandler
-        request._parameters = _parameters
-        request._method = _requestMethod
-        request._downloadCompletionHandler = _completionHandler
+        request.url = _url
+        request.header = _header
+        request.errorHandler = _errorHandler
+        request.progressHandler = _progressHandler
+        request.parameters = _parameters
+        request.method = _requestMethod
+        request.downloadCompletionHandler = _completionHandler
         
         request.downloadRequestDelegate.fileDestination = _fileDestination
         

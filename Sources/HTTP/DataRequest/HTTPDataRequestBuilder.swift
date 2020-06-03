@@ -33,42 +33,6 @@ public struct HTTPDataRequestBuilder: RequestBuilder, TaskBuilder {
         return HTTPDataRequestBuilder()
     }
     
-    public func url(_ url: URLRepresentable) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._url = url
-        return mutable
-    }
-    
-    public func urlRequest(_ url: URLRequestRepresentable) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._url = url
-        return mutable
-    }
-    
-    public func queryParameters(_ parameters: HTTPParameters) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._parameters = parameters
-        return mutable
-    }
-    
-    public func header(_ header: HTTPHeader) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._header = header
-        return mutable
-    }
-    
-    public func requestMethod(_ requestMethod: HTTPMethod) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._requestMethod = requestMethod
-        return mutable
-    }
-    
-    public func sessionConfiguration(_ sessionConfiguration: URLSessionConfiguration) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._sessionConfiguration = sessionConfiguration
-        return mutable
-    }
-    
     public func decode<T: Decodable>(to decodable: T.Type, completion: @escaping (HTTPResponse<T>)->Void) -> HTTPDataRequestBuilder{
         var mutable = self
         mutable.decodable = decodable
@@ -88,18 +52,6 @@ public struct HTTPDataRequestBuilder: RequestBuilder, TaskBuilder {
         return mutable
     }
     
-    public func progressHandler(_ progressHandler: @escaping HTTPProgressHandler) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._progressHandler = progressHandler
-        return mutable
-    }
-    
-    public func completionHandler(_ completionHandler: @escaping HTTPDataResponseHandler) -> HTTPDataRequestBuilder {
-        var mutable = self
-        mutable._completionHandler = completionHandler
-        return mutable
-    }
-    
     public func stringResponse(_ completionHandler: @escaping HTTPStringResponseHandler) -> HTTPDataRequestBuilder {
         var mutable = self
         mutable._stringCompletionHandler = completionHandler
@@ -112,9 +64,9 @@ public struct HTTPDataRequestBuilder: RequestBuilder, TaskBuilder {
         return mutable
     }
     
-    public func `catch`(_ errorHandler: @escaping HTTPErrorHandler) -> HTTPDataRequestBuilder {
+    func completionHandler(_ completionHandler: @escaping HTTPDataResponseHandler) -> Buildable {
         var mutable = self
-        mutable._errorHandler = errorHandler
+        mutable._completionHandler = completionHandler
         return mutable
     }
     
@@ -123,12 +75,12 @@ public struct HTTPDataRequestBuilder: RequestBuilder, TaskBuilder {
         let request = HTTPDataRequest()
         request.session = URLSession(configuration: _sessionConfiguration, delegate: request.dataRequestDelegate, delegateQueue: nil)
         
-        request._url = _url
-        request._header = _header
-        request._errorHandler = _errorHandler
-        request._progressHandler = _progressHandler
-        request._parameters = _parameters
-        request._method = _requestMethod
+        request.url = _url
+        request.header = _header
+        request.errorHandler = _errorHandler
+        request.progressHandler = _progressHandler
+        request.parameters = _parameters
+        request.method = _requestMethod
         request.dataCompletionHandler = _completionHandler
         request.jsonCompletionHandler = _jsonCompletionHandler
         request.stringCompletionHandler = _stringCompletionHandler

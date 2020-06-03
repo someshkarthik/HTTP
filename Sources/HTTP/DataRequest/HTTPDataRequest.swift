@@ -8,7 +8,7 @@
 
 import Foundation
 
-final internal class HTTPDataRequest: HTTPRequest,Builder {
+final internal class HTTPDataRequest: HTTPRequest, Builder {
     var dataRequestDelegate: HTTPDataRequestDelegate = .init()
     
     var decodable: HTTPDecodable.Type?
@@ -29,13 +29,13 @@ final internal class HTTPDataRequest: HTTPRequest,Builder {
         
         var urlRequest: URLRequest
         
-        if let urlRequestConvertible = _url as? URLRequestRepresentable {
+        if let urlRequestConvertible = url as? URLRequestRepresentable {
             urlRequest = urlRequestConvertible.asURLRequest()
             task = session?.dataTask(with: urlRequest)
         } else {
             do {
-                let url = try _url.asURl()
-                urlRequest = URLRequest(url: url)
+                let _url = try url.asURl()
+                urlRequest = URLRequest(url: _url)
             } catch {
                 httpDataRequestDelegate(
                     finishedWithError: .init(data: nil, response: nil, result: error.httpError)
@@ -44,10 +44,10 @@ final internal class HTTPDataRequest: HTTPRequest,Builder {
             }
         }
         
-        urlRequest.httpMethod = _method.rawValue
+        urlRequest.httpMethod = method.rawValue
         
-        if !_parameters.isEmpty {
-            do { try urlRequest.url?.encode(withParameters: self._parameters) }
+        if !parameters.isEmpty {
+            do { try urlRequest.url?.encode(withParameters: self.parameters) }
             catch {
                 httpDataRequestDelegate(
                     finishedWithError: .init(data: nil, response: nil, result: error.httpError)
@@ -56,7 +56,7 @@ final internal class HTTPDataRequest: HTTPRequest,Builder {
             }
         }
         
-        for (key,value) in _header {
+        for (key,value) in header {
             urlRequest.setValue(value, forHTTPHeaderField: key)
         }
         
@@ -68,11 +68,11 @@ final internal class HTTPDataRequest: HTTPRequest,Builder {
 
 extension HTTPDataRequest: DataRequestDelegate {
     func httpDataRequestDelegate(_ progress: Progress) {
-        _progressHandler?(progress.httpProgress)
+        progressHandler?(progress.httpProgress)
     }
     
     func httpDataRequestDelegate(finishedWithError error: ErrorResponse) {
-        _errorHandler?(error)
+        errorHandler?(error)
     }
     
     func httpDataRequestDelegate(finishedWithData data: DataResponse) {
@@ -98,11 +98,11 @@ extension HTTPDataRequest {
             }
             
             if self.decodable != nil {
-                NotificationCenter.default.post(name: NSNotification.Name("Decode"), object: (response,_errorHandler))
+                NotificationCenter.default.post(name: NSNotification.Name("Decode"), object: (response,errorHandler))
             }
             
         } catch {
-            _errorHandler?(.init(data: response.data, response: response.urlResponse, result: error.httpError))
+            errorHandler?(.init(data: response.data, response: response.urlResponse, result: error.httpError))
         }
         
     }

@@ -28,27 +28,27 @@ final public class HTTPUploadRequest: HTTPRequest, Builder {
     }
     
     public func url(_ url: URLRepresentable) -> HTTPUploadRequest {
-        self._url = url
+        self.url = url
         return self
     }
     
     public func urlRequest(_ url: URLRequestRepresentable) -> HTTPUploadRequest {
-        self._url = url
+        self.url = url
         return self
     }
     
     public func queryParameters(_ parameters: HTTPParameters) -> HTTPUploadRequest {
-        self._parameters = parameters
+        self.parameters = parameters
         return self
     }
     
     public func header(_ header: HTTPHeader) -> HTTPUploadRequest {
-        self._header = header
+        self.header = header
         return self
     }
     
     public func requestMethod(_ requestMethod: HTTPMethod) -> HTTPUploadRequest {
-        self._method = requestMethod
+        self.method = requestMethod
         return self
     }
     
@@ -63,7 +63,7 @@ final public class HTTPUploadRequest: HTTPRequest, Builder {
     }
     
     public func progressHandler(_ progressHandler: @escaping HTTPProgressHandler) -> HTTPUploadRequest {
-        self._progressHandler = progressHandler
+        self.progressHandler = progressHandler
         return self
     }
     
@@ -73,7 +73,7 @@ final public class HTTPUploadRequest: HTTPRequest, Builder {
     }
     
     public func `catch`(_ errorHandler: @escaping HTTPErrorHandler) -> HTTPUploadRequest {
-        self._errorHandler = errorHandler
+        self.errorHandler = errorHandler
         return self
     }
     
@@ -91,12 +91,12 @@ final public class HTTPUploadRequest: HTTPRequest, Builder {
             break
         }
         do {
-            var urlRequest = URLRequest(url: try _url.asURl())
-            urlRequest.httpMethod = _method.rawValue
+            var urlRequest = URLRequest(url: try url.asURl())
+            urlRequest.httpMethod = method.rawValue
             urlRequest.httpBody = try multiPartData?.encode()
-            _header["Connection"] = "Keep-Alive"
-            _header["Content-Type"] = "multipart/form-data"
-            urlRequest.allHTTPHeaderFields = _header
+            header["Connection"] = "Keep-Alive"
+            header["Content-Type"] = "multipart/form-data"
+            urlRequest.allHTTPHeaderFields = header
             task = session?.uploadTask(with: urlRequest, from: dataToUpload)
             task?.resume()
         }catch {
