@@ -10,7 +10,7 @@ import Foundation
 protocol DownloadRequestDelegate: class {
     func httpDownloadRequestDelegate(finishedWithError error: ErrorResponse, resumableData: Data?)
     func httpDownloadRequestDelegate(finishedWithURL url: DownloadResponse)
-    func httpDownloadRequestDelegate(_ progress: Progress)
+    func httpDownloadRequestDelegate(_ progress: HTTPProgress)
 }
 
 final class HTTPDownloadRequestDelegate: NSObject, URLSessionDownloadDelegate {
@@ -50,15 +50,14 @@ final class HTTPDownloadRequestDelegate: NSObject, URLSessionDownloadDelegate {
         delegate?.httpDownloadRequestDelegate(
             finishedWithURL: .init(data: nil, response: downloadTask.response, result: finalDestinationURL)
         )
-        delegate = nil
     }
     
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didResumeAtOffset fileOffset: Int64, expectedTotalBytes: Int64) {
-        progress(downloadTask.progress, from: fileOffset, totalOffset: expectedTotalBytes)
+        progress(downloadTask.progress,bytesWritten: 0, from: fileOffset, totalOffset: expectedTotalBytes)
     }
     
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
-        progress(downloadTask.progress, from: totalBytesWritten, totalOffset: totalBytesExpectedToWrite)
+        progress(downloadTask.progress, bytesWritten: bytesWritten , from: totalBytesWritten, totalOffset: totalBytesExpectedToWrite)
     }
     
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
@@ -68,10 +67,12 @@ final class HTTPDownloadRequestDelegate: NSObject, URLSessionDownloadDelegate {
         }
     }
     
-    func progress(_ progress: Progress, from completedOffset: Int64,totalOffset: Int64) {
+    func progress(_ progress: Progress,bytesWritten: Int64, from completedOffset: Int64,totalOffset: Int64) {
         progress.completedUnitCount = completedOffset
         progress.totalUnitCount = totalOffset
-        delegate?.httpDownloadRequestDelegate(progress)
+        var httpProgress = progress.httpProgress
+        httpProgress.bytesWritten = bytesWritten
+        delegate?.httpDownloadRequestDelegate(httpProgress)
     }
     
     func encodeToErrorResponse(_ error: Error,from response: URLResponse?,resumableData: Data? = nil) {
@@ -79,7 +80,6 @@ final class HTTPDownloadRequestDelegate: NSObject, URLSessionDownloadDelegate {
             finishedWithError: .init(data: nil, response: response, result: error.httpError),
             resumableData: resumableData
         )
-        delegate = nil
     }
     
 }

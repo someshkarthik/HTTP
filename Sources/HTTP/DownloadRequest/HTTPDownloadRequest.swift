@@ -92,7 +92,7 @@ extension HTTPDownloadRequest: DownloadRequestDelegate {
         downloadCompletionHandler?(url)
     }
     
-    func httpDownloadRequestDelegate(_ progress: Progress) {
-        progressHandler?(progress.httpProgress)
+    func httpDownloadRequestDelegate(_ progress: HTTPProgress) {
+        progressHandler?(progress)
     }
 }

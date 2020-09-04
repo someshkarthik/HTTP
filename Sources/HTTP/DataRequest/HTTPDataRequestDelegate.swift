@@ -46,7 +46,7 @@ final class HTTPDataRequestDelegate: NSObject, URLSessionDataDelegate {
             delegate?.httpDataRequestDelegate(
                 finishedWithData: .init(data: buffer, response: response, result: buffer)
             )
+            buffer.removeAll()
         }
-        delegate = nil
     }
 }

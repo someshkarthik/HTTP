@@ -12,12 +12,13 @@ public struct HTTPProgress {
     
     enum Size: Int {
         case byte = 0
-        case kiloByte
-        case megaByte
-        case gigaByte
+        case kb
+        case mb
+        case gb
     }
     
     let progress: Progress
+    var bytesWritten: Int64 = 0
     
     var percentage: Float {
         Float(String(format: "%.2f", Double(progress.fractionCompleted) * 100.0))!
@@ -32,8 +33,15 @@ public struct HTTPProgress {
         size(sizeRatio, for: progress.totalUnitCount)
     }
     
-    func formattedTotalSize(in sizeRatio: Self.Size,upto decimalSpace: Int = 2) -> String {
-        totalSize(in: sizeRatio).format(to: decimalSpace)
+    func formattedTotalSize(in sizeRatio: Self.Size,upto decimalSpace: Int = 2) -> Double {
+        totalSize(in: sizeRatio)
+            .format(to: decimalSpace)
+    }
+    
+    func formattedDynamicTotalSize(upto decimalSpace: Int = 2) -> String {
+        let sizeRatio = getCorrectSize(for: progress.totalUnitCount)
+        return totalSize(in: sizeRatio)
+            .format(to: decimalSpace,sizeRatio: sizeRatio)
     }
     
     //MARK: Completed Size Computation
@@ -45,11 +53,17 @@ public struct HTTPProgress {
         completedSize(in: sizeRatio).format(to: decimalSpace)
     }
     
+    func formatteDynamicCompletedSize(upto decimalSpace: Int = 2) -> String {
+        let sizeRatio = getCorrectSize(for: progress.completedUnitCount)
+        return completedSize(in: sizeRatio)
+            .format(to: decimalSpace,sizeRatio: sizeRatio)
+    }
+    
     //MARK: Fetches SizeRatio based the unit Count
-    func getCorrectSize(for unitCount: Int64, startsFrom sizeRatio: Self.Size = .byte) -> Self.Size{
-        let newSize = unitCount/1024
+    private func getCorrectSize(for unitCount: Int64, startsFrom sizeRatio: Self.Size = .byte) -> Self.Size{
         
-        if newSize >= 1024 {
+        if unitCount >= 1024 {
+            let newSize = unitCount/1024
             return getCorrectSize(
                 for: newSize,
                 startsFrom: Size(rawValue: sizeRatio.rawValue+1)!
@@ -72,13 +86,12 @@ extension Progress {
 //MARK: Precision Formatter
 //only applicable to floating-point value type
 extension CVarArg where Self: BinaryFloatingPoint {
-    func format(to decimalSpaces: Int) -> String {
-        return String(format: "%.\(decimalSpaces)f", self)
+    func format(to decimalSpaces: Int, sizeRatio: HTTPProgress.Size) -> String {
+        return String(format: "%.\(decimalSpaces)f\(sizeRatio)", self)
     }
     
     func format(to decimalSpaces: Int) -> Double {
         let multiplier = (pow(10, Double(decimalSpaces)))
-        
         return ((multiplier * Double(self)).rounded() / multiplier)
     }
 }
